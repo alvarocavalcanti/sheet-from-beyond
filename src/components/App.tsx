@@ -80,7 +80,7 @@ const App: React.FC = () => {
     <Container className="mt-3">
       <h1>Sheet from Beyond</h1>
 
-      <Accordion className="mb-3">
+      <Accordion className="p-3">
         <Accordion.Item eventKey="0">
           <Accordion.Header onClick={() => handleAccordionClick("0")}>
             Character Sheets
