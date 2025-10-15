@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { createRoot } from "react-dom/client";
 import App from "./components/App";
 import PluginGate from "./components/PluginGate";
+import { analytics } from "./utils";
 
 export const ID = "es.memorablenaton.sheet-from-beyond";
 
@@ -10,6 +11,11 @@ const root = createRoot(container!);
 
 const urlParams = new URLSearchParams(window.location.search);
 const isFromOBR = urlParams.has("obrref");
+
+// Track standalone homepage views
+if (!isFromOBR) {
+  analytics.page();
+}
 
 root.render(
   isFromOBR ? (
