@@ -10,13 +10,9 @@ interface CharacterSheet {
   url: string;
 }
 
-const getItemText = (item: Item): string => {
-  if (item.text?.richText && item.text.richText.length > 0) {
-    return item.text.richText
-      .map((line: any) => line.children.map((child: any) => child.text).join(''))
-      .join(' ');
-  }
-  return item.text?.plainText || item.name || "Unknown";
+const getItemName = (item: Item): string => {
+  // CHARACTER items have a name property directly
+  return item.name || "Unknown Character";
 };
 
 const CharacterSheetsList: React.FC = () => {
@@ -34,7 +30,7 @@ const CharacterSheetsList: React.FC = () => {
         const metadata = item.metadata[`${ID}/metadata`] as { characterSheetURL: string };
         return {
           id: item.id,
-          name: getItemText(item),
+          name: getItemName(item),
           url: metadata.characterSheetURL,
         };
       })
