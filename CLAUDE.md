@@ -50,15 +50,39 @@ Creates two context menu entries for CHARACTER layer items:
      - **Popover mode**: Opens in OBR popover with configurable dimensions
      - **Popup mode**: Opens in new browser window (400x800, centered on screen)
 
-### Settings UI (`App.tsx`)
+### Main UI (`App.tsx`)
 
-React component that provides configuration interface:
+React component with accordion-based interface featuring two main sections:
+
+**1. Character Sheets Accordion:**
+- Lists all character tokens with associated sheet URLs
+- Displays character name with external link icon for quick access
+- Empty state with instructions when no sheets are added
+- Real-time updates via `OBR.scene.items.onChange()`
+- Opens sheets in popup window when clicked from list
+- Sorted alphabetically by character name
+
+**2. Settings Accordion:**
 - Display mode toggle (Popup Window vs Popover)
 - Popover size configuration (height/width) when in popover mode
 - Uses `useLocalStorage` hook from `@uidotdev/usehooks` for persistence
 - Settings stored with keys: `${ID}/popoverMode`, `${ID}/popoverHeight`, `${ID}/popoverWidth`
-- Fetches version from `/manifest.json` on mount
+
+**Additional UI Elements:**
+- Both accordions collapsed by default on page load
+- Buy Me a Coffee button at bottom
+- Version display from `/manifest.json`
 - Only renders when scene is ready (via `OBR.scene.isReady()`)
+
+### Character Sheets List (`CharacterSheetsList.tsx`)
+
+Component that displays all characters with associated sheet URLs:
+- Queries OBR scene items filtered by CHARACTER layer with metadata
+- Extracts character name from item text (supports both plainText and richText)
+- Subscribes to item changes for real-time list updates
+- Opens sheets in centered popup window (400x800)
+- Shows informative empty state when no sheets exist
+- Uses Bootstrap ListGroup for consistent styling
 
 ### Key Data Flow
 
@@ -110,9 +134,15 @@ Settings UI Actions (`App.tsx`):
 - `settings_change_popover_mode` - Display mode changed to popover
 - `settings_update_popover_height` - Popover height changed
 - `settings_update_popover_width` - Popover width changed
+- `accordion_open_sheets` - Character Sheets accordion opened
+- `accordion_open_settings` - Settings accordion opened
+
+Character Sheet List Actions (`CharacterSheetsList.tsx`):
+- `open_sheet_from_list` - Sheet opened via list external link icon
 
 Page Views:
 - Settings page view tracked via `analytics.page()` in `App.tsx`
+- Standalone homepage view tracked via `analytics.page()` in `main.tsx`
 
 **Usage Pattern:**
 ```typescript
