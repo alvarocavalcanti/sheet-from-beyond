@@ -1,5 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { ID } from "./main";
+import { analytics } from "./utils";
 
 
 export function setupContextMenu() {
@@ -40,6 +41,7 @@ export function setupContextMenu() {
 
         try {
           new URL(characterSheetURL);
+          analytics.track("add_sheet");
           OBR.scene.items.updateItems(context.items, (items) => {
             for (const item of items) {
               item.metadata[`${ID}/metadata`] = {
@@ -52,6 +54,7 @@ export function setupContextMenu() {
           return;
         }
       } else {
+        analytics.track("remove_sheet");
         OBR.scene.items.updateItems(context.items, (items) => {
           for (const item of items) {
             delete item.metadata[`${ID}/metadata`];
@@ -84,6 +87,7 @@ export function setupContextMenu() {
         `${ID}/metadata`
       ] as { characterSheetURL: string };
       if (localStorage.getItem(`${ID}/popoverMode`) === "true") {
+        analytics.track("view_sheet_popover");
         OBR.popover.open({
           id: `${ID}/popover`,
           url: `${metadata.characterSheetURL}`,
@@ -92,6 +96,7 @@ export function setupContextMenu() {
           anchorElementId: elementId,
         });
       } else {
+        analytics.track("view_sheet_popup");
         const screenWidth =
           window.innerWidth ||
           document.documentElement.clientWidth ||

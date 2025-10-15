@@ -6,6 +6,7 @@ import { Badge, Card, Container, Form } from "react-bootstrap";
 import { setupContextMenu } from "../contextMenu";
 import { ID } from "../main";
 import { useLocalStorage } from "@uidotdev/usehooks";
+import { analytics } from "../utils";
 
 const setTheme = (theme: string): void => {
   document.getElementById("html_root")?.setAttribute("data-bs-theme", theme);
@@ -40,6 +41,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    analytics.page();
     OBR.onReady(() => {
       setupContextMenu();
 
@@ -54,8 +56,19 @@ const App: React.FC = () => {
 
   const handleOnChange = (popoverMode: boolean) => {
     console.log(`Setting popover mode to ${popoverMode}`);
+    analytics.track(popoverMode ? "settings_change_popover_mode" : "settings_change_popup_mode");
     localStorage.setItem(`${ID}/popoverMode`, `${isPopoverMode}`);
     setIsPopoverMode(popoverMode);
+  };
+
+  const handlePopoverHeightChange = (height: number) => {
+    analytics.track("settings_update_popover_height");
+    setPopoverHeight(height);
+  };
+
+  const handlePopoverWidthChange = (width: number) => {
+    analytics.track("settings_update_popover_width");
+    setPopoverWidth(width);
   };
 
   return sceneReady ? (
@@ -95,7 +108,7 @@ const App: React.FC = () => {
               <Form.Control
                 type="number"
                 value={popoverHeight}
-                onChange={(e) => setPopoverHeight(parseInt(e.target.value))}
+                onChange={(e) => handlePopoverHeightChange(parseInt(e.target.value))}
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -103,7 +116,7 @@ const App: React.FC = () => {
               <Form.Control
                 type="number"
                 value={popoverWidth}
-                onChange={(e) => setPopoverWidth(parseInt(e.target.value))}
+                onChange={(e) => handlePopoverWidthChange(parseInt(e.target.value))}
               />
             </Form.Group>
           </Card.Body>
