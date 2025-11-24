@@ -1,6 +1,6 @@
 {
   "name": "Sheet from Beyond",
-  "version": "2025-01-15",
+  "version": "2025-11-24",
   "manifest_version": 1,
   "author": "Alvaro Cavalcanti",
   "icon": "/img/icon-store.svg",
@@ -11,6 +11,6 @@
     "icon": "/img/icon.svg",
     "popover": "/",
     "height": 600,
-    "width": 400
+    "width": 600
   }
 }

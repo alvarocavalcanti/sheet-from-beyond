@@ -2,7 +2,7 @@ import OBR from "@owlbear-rodeo/sdk";
 import React, { useEffect, useState } from "react";
 
 import SceneNotReady from "./SceneNotReady";
-import { Accordion, Badge, Card, Container, Form } from "react-bootstrap";
+import { Badge, Card, Form, Nav, Tab } from "react-bootstrap";
 import { setupContextMenu } from "../contextMenu";
 import { ID } from "../main";
 import { useLocalStorage } from "@uidotdev/usehooks";
@@ -15,18 +15,12 @@ const setTheme = (theme: string): void => {
 
 const App: React.FC = () => {
   const [sceneReady, setSceneReady] = useState(false);
-  const [isPopoverMode, setIsPopoverMode] = useLocalStorage(
-    `${ID}/popoverMode`,
+  const [isInlineMode, setIsInlineMode] = useLocalStorage(
+    `${ID}/inlineMode`,
     false
   );
-  const [popoverHeight, setPopoverHeight] = useLocalStorage(
-    `${ID}/popoverHeight`,
-    800
-  );
-  const [popoverWidth, setPopoverWidth] = useLocalStorage(
-    `${ID}/popoverWidth`,
-    400
-  );
+  const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("characters");
 
   const [version, setVersion] = useState("unknown");
   useEffect(() => {
@@ -52,97 +46,91 @@ const App: React.FC = () => {
       OBR.theme.onChange((theme) => {
         setTheme(theme.mode.toLowerCase());
       });
+
+      const unsubscribeBroadcast = OBR.broadcast.onMessage(
+        `${ID}/view-sheet`,
+        (event) => {
+          const { characterId } = event.data as { characterId: string; sheetURL: string };
+          setActiveSheetId(characterId);
+          setActiveTab("characters");
+          analytics.track("view_sheet_from_context_menu");
+        }
+      );
+
+      return () => {
+        unsubscribeBroadcast();
+      };
     });
   });
 
-  const handleOnChange = (popoverMode: boolean) => {
-    console.log(`Setting popover mode to ${popoverMode}`);
-    analytics.track(popoverMode ? "settings_change_popover_mode" : "settings_change_popup_mode");
-    localStorage.setItem(`${ID}/popoverMode`, `${isPopoverMode}`);
-    setIsPopoverMode(popoverMode);
+  const handleOnChange = (inlineMode: boolean) => {
+    console.log(`Setting inline mode to ${inlineMode}`);
+    analytics.track(inlineMode ? "settings_change_inline_mode" : "settings_change_popup_mode");
+    setIsInlineMode(inlineMode);
   };
 
-  const handlePopoverHeightChange = (height: number) => {
-    analytics.track("settings_update_popover_height");
-    setPopoverHeight(height);
-  };
-
-  const handlePopoverWidthChange = (width: number) => {
-    analytics.track("settings_update_popover_width");
-    setPopoverWidth(width);
-  };
-
-  const handleAccordionClick = (eventKey: string) => {
-    analytics.track(eventKey === "0" ? "accordion_open_sheets" : "accordion_open_settings");
+  const handleTabSelect = (key: string | null) => {
+    if (key) {
+      setActiveTab(key);
+      analytics.track(key === "characters" ? "tab_switch_characters" : "tab_switch_settings");
+    }
   };
 
   return sceneReady ? (
-    <Container className="mt-3">
-      <h1>Sheet from Beyond</h1>
+    <div className="p-2">
+      <h1 className="mb-3">Sheet from Beyond</h1>
 
-      <Accordion className="p-3">
-        <Accordion.Item eventKey="0">
-          <Accordion.Header onClick={() => handleAccordionClick("0")}>
-            Character Sheets
-          </Accordion.Header>
-          <Accordion.Body>
-            <CharacterSheetsList />
-          </Accordion.Body>
-        </Accordion.Item>
+      <Tab.Container activeKey={activeTab} onSelect={handleTabSelect}>
+        <Nav variant="tabs" className="mb-3">
+          <Nav.Item>
+            <Nav.Link eventKey="characters">Characters</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="settings">Settings</Nav.Link>
+          </Nav.Item>
+          <div className="ms-auto text-secondary small align-self-center">v{version}</div>
+        </Nav>
 
-        <Accordion.Item eventKey="1">
-          <Accordion.Header onClick={() => handleAccordionClick("1")}>
-            Settings
-          </Accordion.Header>
-          <Accordion.Body>
-            <Card className="mb-3 text-justify">
+        <Tab.Content>
+          <Tab.Pane eventKey="characters">
+            <CharacterSheetsList
+              activeSheetId={activeSheetId}
+              setActiveSheetId={setActiveSheetId}
+            />
+          </Tab.Pane>
+
+          <Tab.Pane eventKey="settings">
+            <Card className="mb-3">
               <Card.Body>
-                <Card.Title>Display Mode</Card.Title>
+                <Card.Title>Context Menu Behavior</Card.Title>
+                <Card.Text className="mb-3">
+                  This setting controls what happens when you right-click a character
+                  on the map and select "View Sheet". Within the extension panel,
+                  you always have both options: click a name to view inline, or click
+                  the external link icon to open in a popup.
+                </Card.Text>
                 <Form.Check
                   type="radio"
                   id="popupMode"
                   name="displayMode"
                   value="popup"
-                  checked={!isPopoverMode}
+                  checked={!isInlineMode}
                   onChange={() => handleOnChange(false)}
                   label="Popup Window"
                   inline
                 />
                 <Form.Check
                   type="radio"
-                  id="popoverMode"
+                  id="inlineMode"
                   name="displayMode"
-                  value="popover"
-                  checked={isPopoverMode}
+                  value="inline"
+                  checked={isInlineMode}
                   onChange={() => handleOnChange(true)}
-                  label="Popover"
+                  label="Open Extension Panel"
                   inline
                 />
               </Card.Body>
             </Card>
-            {isPopoverMode && (
-              <Card className="mb-3">
-                <Card.Body>
-                  <Card.Title>Popover Size</Card.Title>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Height</Form.Label>
-                    <Form.Control
-                      type="number"
-                      value={popoverHeight}
-                      onChange={(e) => handlePopoverHeightChange(parseInt(e.target.value))}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Width</Form.Label>
-                    <Form.Control
-                      type="number"
-                      value={popoverWidth}
-                      onChange={(e) => handlePopoverWidthChange(parseInt(e.target.value))}
-                    />
-                  </Form.Group>
-                </Card.Body>
-              </Card>
-            )}
             <Card className="mb-3">
               <Card.Body>
                 <Card.Title>
@@ -159,11 +147,11 @@ const App: React.FC = () => {
             </Card>
             <Card className="mb-3">
               <Card.Body>
-                <Card.Title>Popover</Card.Title>
+                <Card.Title>Inline Display</Card.Title>
                 <Card.Text>
-                  In this mode the character sheet will be displayed inside Owlbear
-                  Rodeo's scene. Even though the usability is better, it has the
-                  following limitations:
+                  In this mode the character sheet will be displayed inside the
+                  extension panel as an expandable section. Even though the usability
+                  is better, it has the following limitations:
                   <ul className="mt-3">
                     <li className="mb-2">
                       It won't have access to the current browser session. Therefore,
@@ -182,22 +170,20 @@ const App: React.FC = () => {
                 </Card.Text>
               </Card.Body>
             </Card>
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
 
-      <Container className="p-3 text-center">
-        <a href="https://www.buymeacoffee.com/alvarocavalcanti" target="_blank" rel="noreferrer">
-          <img
-            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-            alt="Buy Me A Coffee"
-            style={{ height: "60px", width: "217px" }}
-          />
-        </a>
-      </Container>
-
-      <em className="text-secondary text-center d-block mb-3">Version: {version}</em>
-    </Container>
+            <div className="p-3 text-center">
+              <a href="https://www.buymeacoffee.com/alvarocavalcanti" target="_blank" rel="noreferrer">
+                <img
+                  src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+                  alt="Buy Me A Coffee"
+                  style={{ height: "60px", width: "217px" }}
+                />
+              </a>
+            </div>
+          </Tab.Pane>
+        </Tab.Content>
+      </Tab.Container>
+    </div>
   ) : (
     <SceneNotReady />
   );

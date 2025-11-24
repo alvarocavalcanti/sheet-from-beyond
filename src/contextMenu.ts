@@ -82,19 +82,25 @@ export function setupContextMenu() {
         },
       },
     ],
-    onClick(context, elementId) {
+    async onClick(context) {
       const metadata: { characterSheetURL: string } = context.items[0].metadata[
         `${ID}/metadata`
       ] as { characterSheetURL: string };
-      if (localStorage.getItem(`${ID}/popoverMode`) === "true") {
-        analytics.track("view_sheet_popover");
-        OBR.popover.open({
-          id: `${ID}/popover`,
-          url: `${metadata.characterSheetURL}`,
-          height: localStorage.getItem(`${ID}/popoverHeight`) as unknown as number,
-          width: localStorage.getItem(`${ID}/popoverWidth`) as unknown as number,
-          anchorElementId: elementId,
-        });
+      const isInlineMode = localStorage.getItem(`${ID}/inlineMode`) === "true";
+
+      if (isInlineMode) {
+        analytics.track("view_sheet_inline");
+
+        await OBR.action.open();
+
+        await OBR.broadcast.sendMessage(
+          `${ID}/view-sheet`,
+          {
+            characterId: context.items[0].id,
+            sheetURL: metadata.characterSheetURL,
+          },
+          { destination: "LOCAL" }
+        );
       } else {
         analytics.track("view_sheet_popup");
         const screenWidth =
