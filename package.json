@@ -1,7 +1,7 @@
 {
   "name": "sheet-from-beyond",
   "private": true,
-  "version": "2025-11-24",
+  "version": "2026-02-03",
   "type": "module",
   "scripts": {
     "dev": "vite",
