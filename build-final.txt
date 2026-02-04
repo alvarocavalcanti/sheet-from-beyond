@@ -1,0 +1,17 @@
+
+> sheet-from-beyond@2026-02-03 build
+> tsc && vite build
+
+vite v5.2.12 building for production...
+<script src="/_vercel/insights/script.js"> in "/index.html" can't be bundled without type="module" attribute
+<script src="/_vercel/speed-insights/script.js"> in "/index.html" can't be bundled without type="module" attribute
+transforming...
+✓ 133 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/background.html                  0.38 kB │ gzip:  0.25 kB
+dist/index.html                       0.90 kB │ gzip:  0.49 kB
+dist/assets/main-Dz94qTZe.css        19.68 kB │ gzip:  5.61 kB
+dist/assets/background-BwpjR5Hd.js    0.27 kB │ gzip:  0.21 kB
+dist/assets/main-Ce74H0R5.js        209.51 kB │ gzip: 62.00 kB
+✓ built in 404ms

@@ -7,15 +7,9 @@ import { ID } from "../main";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { analytics } from "../utils";
 import CharacterSheetsList from "./CharacterSheetsList";
-
-const setTheme = (theme: string): void => {
-  const root = document.documentElement;
-  if (theme === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
-};
+import ThemeSelector from "./ThemeSelector";
+import { useTheme } from "../hooks/useTheme";
+import { ColorMode } from "../themes";
 
 const App: React.FC = () => {
   const [sceneReady, setSceneReady] = useState(false);
@@ -25,6 +19,19 @@ const App: React.FC = () => {
   );
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("characters");
+  const [colorMode, setColorMode] = useState<ColorMode>('dark');
+  const { themeId, changeTheme } = useTheme(colorMode);
+
+  const setTheme = (theme: string): void => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      setColorMode('dark');
+    } else {
+      root.classList.remove('dark');
+      setColorMode('light');
+    }
+  };
 
   const [version, setVersion] = useState("unknown");
   useEffect(() => {
@@ -123,6 +130,8 @@ const App: React.FC = () => {
 
       {activeTab === "settings" && (
         <>
+          <ThemeSelector currentTheme={themeId} onThemeChange={changeTheme} />
+
           <div className="mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-4">
             <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Context Menu Behavior</h2>
             <p className="text-gray-700 dark:text-gray-300 mb-4">
