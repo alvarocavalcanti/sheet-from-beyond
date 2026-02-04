@@ -1,11 +1,18 @@
-import Analytics from 'analytics';
-import googleAnalytics from '@analytics/google-analytics';
+declare global {
+  interface Window {
+    gtag: (...args: unknown[]) => void;
+  }
+}
 
-export const analytics = Analytics({
-  app: 'sheet-from-beyond',
-  plugins: [
-    googleAnalytics({
-      measurementIds: ['G-GEYF4VC4CN']
-    })
-  ]
-})
+export const analytics = {
+  page: () => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view');
+    }
+  },
+  track: (eventName: string, properties?: Record<string, unknown>) => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, properties);
+    }
+  }
+};

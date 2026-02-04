@@ -1,5 +1,38 @@
 # Release Notes
 
+## Version 2026-02-04
+
+### Major Tech Stack Modernization
+
+**Complete migration from Bootstrap to Tailwind CSS** resulting in significant performance improvements.
+
+#### Performance Improvements
+
+- **Bundle Size Reduction**: 70% smaller total bundle
+  - CSS: 231.93 KB → 19.68 KB (91.5% reduction)
+  - JavaScript: 276.36 KB → 209.51 KB (24.2% reduction)
+  - Total (gzipped): 116.03 KB → 67.61 KB (41.7% reduction)
+- **Build Performance**: 40% faster builds (675ms → 404ms)
+- **Module Optimization**: 70% fewer modules transformed (450 → 133)
+- **Dependencies**: Reduced from 22 to 15 core packages
+
+#### Technical Changes
+
+- Replaced Bootstrap 5 + react-bootstrap with Tailwind CSS v4
+- Replaced analytics wrapper packages with direct gtag.js integration
+- Maintained all existing functionality with improved performance
+- Enhanced dark mode support with better color contrast
+- Cleaner, more maintainable component code
+
+#### Visual Improvements
+
+- Improved text readability in dark mode
+- Better color contrast throughout the UI
+- Consistent styling with Owlbear Rodeo theme
+- Smoother hover states and transitions
+
+---
+
 ## Version 2025-11-24
 
 ### Major UI Redesign

@@ -1,6 +1,5 @@
 import OBR, { Item } from "@owlbear-rodeo/sdk";
 import React, { useEffect, useState } from "react";
-import { Alert, Button, ListGroup } from "react-bootstrap";
 import { ID } from "../main";
 import { analytics } from "../utils";
 
@@ -87,43 +86,44 @@ const CharacterSheetsList: React.FC<CharacterSheetsListProps> = ({
 
   if (sheets.length === 0) {
     return (
-      <Alert variant="info">
-        <Alert.Heading>No character sheets added yet</Alert.Heading>
-        <p>
+      <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-lg p-4">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+          No character sheets added yet
+        </h3>
+        <p className="text-blue-800 dark:text-blue-200">
           Right-click on a character token and select <strong>"Add Sheet"</strong> to get started.
         </p>
-      </Alert>
+      </div>
     );
   }
 
   return (
     <>
-      <ListGroup className="mb-3">
+      <div className="mb-4 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
         {sheets.map((sheet) => (
-          <ListGroup.Item
+          <div
             key={sheet.id}
-            action
-            active={activeSheetId === sheet.id}
+            className={`flex justify-between items-center px-4 py-3 cursor-pointer border-b border-gray-300 dark:border-gray-600 last:border-b-0 ${
+              activeSheetId === sheet.id
+                ? "bg-blue-100 dark:bg-blue-900/40"
+                : "bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
             onClick={() => {
               setActiveSheetId(sheet.id);
               analytics.track("select_character_inline");
             }}
-            className="d-flex justify-content-between align-items-center py-2"
           >
-            <span>{sheet.name}</span>
-            <Button
-              variant="link"
-              size="sm"
+            <span className="text-gray-900 dark:text-white">{sheet.name}</span>
+            <button
               onClick={(e) => handleOpenInPopup(sheet.url, e)}
               title="Open in popup window"
-              className="p-0"
+              className="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
                 height="16"
                 fill="currentColor"
-                className="bi bi-box-arrow-up-right"
                 viewBox="0 0 16 16"
               >
                 <path
@@ -135,21 +135,21 @@ const CharacterSheetsList: React.FC<CharacterSheetsListProps> = ({
                   d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"
                 />
               </svg>
-            </Button>
-          </ListGroup.Item>
+            </button>
+          </div>
         ))}
-      </ListGroup>
+      </div>
 
       {activeSheetId ? (
         (() => {
           const selectedSheet = sheets.find((s) => s.id === activeSheetId);
           return selectedSheet ? (
-            <div className="iframe-container">
+            <div>
               <iframe
                 src={selectedSheet.url}
                 width="100%"
                 height="600px"
-                style={{ border: "1px solid #dee2e6", borderRadius: "4px" }}
+                className="border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900"
                 title={`${selectedSheet.name} Character Sheet`}
                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
               />
@@ -157,9 +157,11 @@ const CharacterSheetsList: React.FC<CharacterSheetsListProps> = ({
           ) : null;
         })()
       ) : (
-        <Alert variant="info" className="text-center">
-          Click a character name to view their sheet inline, or click the external link icon to open in a popup window.
-        </Alert>
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-lg p-4 text-center">
+          <p className="text-blue-800 dark:text-blue-200">
+            Click a character name to view their sheet inline, or click the external link icon to open in a popup window.
+          </p>
+        </div>
       )}
     </>
   );
