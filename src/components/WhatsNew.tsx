@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { releaseHighlights, changelogUrl } from '../releaseNotes';
+import DonationButtons from './DonationButtons';
 
 interface WhatsNewProps {
   currentVersion: string;
@@ -85,7 +86,14 @@ const WhatsNew: React.FC<WhatsNewProps> = ({ currentVersion, storageKey }) => {
             </a>
           </div>
 
-          <div className="mt-6 flex justify-end">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Enjoying the extension? Consider supporting development:
+            </p>
+            <DonationButtons />
+          </div>
+
+          <div className="mt-4 flex justify-end">
             <button
               onClick={handleDismiss}
               className="px-6 py-2 bg-theme-primary border-2 border-theme-primary text-white rounded font-medium transition-colors"

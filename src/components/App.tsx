@@ -11,6 +11,7 @@ import ThemeSelector from "./ThemeSelector";
 import { useTheme } from "../hooks/useTheme";
 import { ColorMode } from "../themes";
 import WhatsNew from "./WhatsNew";
+import DonationButtons from "./DonationButtons";
 
 const App: React.FC = () => {
   const [sceneReady, setSceneReady] = useState(false);
@@ -209,25 +210,7 @@ const App: React.FC = () => {
             </ul>
           </div>
 
-          <div className="p-3 text-center">
-            <a href="https://www.buymeacoffee.com/alvarocavalcanti" target="_blank" rel="noreferrer">
-              <img
-                src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-                alt="Buy Me A Coffee"
-                className="h-[60px] w-[217px] inline-block"
-              />
-            </a>
-          </div>
-          <div className="p-3 text-center">
-            <a href="https://ko-fi.com/O4O1WSP5B" target="_blank" rel="noreferrer">
-              <img
-                height="36"
-                className="h-9 inline-block"
-                src="https://storage.ko-fi.com/cdn/kofi6.png?v=6"
-                alt="Buy Me a Coffee at ko-fi.com"
-              />
-            </a>
-          </div>
+          <DonationButtons />
         </>
       )}
     </div>
