@@ -10,6 +10,7 @@ import CharacterSheetsList from "./CharacterSheetsList";
 import ThemeSelector from "./ThemeSelector";
 import { useTheme } from "../hooks/useTheme";
 import { ColorMode } from "../themes";
+import WhatsNew from "./WhatsNew";
 
 const App: React.FC = () => {
   const [sceneReady, setSceneReady] = useState(false);
@@ -89,6 +90,8 @@ const App: React.FC = () => {
 
   return sceneReady ? (
     <div className="p-4 min-h-screen">
+      <WhatsNew currentVersion={version} storageKey="sheet-from-beyond-last-seen-version" />
+
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Sheet from Beyond</h1>
 
       {/* Tab Navigation */}
