@@ -82,18 +82,18 @@ Component that displays all characters with associated sheet URLs:
 - Subscribes to item changes for real-time list updates
 - Opens sheets in centered popup window (400x800)
 - Shows informative empty state when no sheets exist
-- Uses Bootstrap ListGroup for consistent styling
+- Uses Tailwind CSS utility classes for consistent styling
 
 ### Key Data Flow
 
 1. **Metadata Storage**: Character sheet URLs stored in Owlbear item metadata
 2. **Settings Persistence**: Display preferences stored in browser localStorage
-3. **Theme Sync**: App listens to OBR theme changes and updates Bootstrap theme accordingly (`data-bs-theme` attribute)
+3. **Theme Sync**: App listens to OBR theme changes and toggles `dark` class on `<html>` for Tailwind dark mode
 
 ### Technology Stack
 
 - **Framework**: React 18 with TypeScript
-- **UI Library**: React Bootstrap 5
+- **UI Library**: Tailwind CSS v4
 - **Build Tool**: Vite with multi-page setup
 - **SDK**: @owlbear-rodeo/sdk for OBR integration
 - **Linting**: ESLint with TypeScript and React Hooks plugins
