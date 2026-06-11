@@ -24,6 +24,7 @@ const CharacterSheetsList: React.FC<CharacterSheetsListProps> = ({
   setActiveSheetId,
 }) => {
   const [sheets, setSheets] = useState<CharacterSheet[]>([]);
+  const sheetCountTracked = React.useRef(false);
 
   const loadSheets = (items: Item[]) => {
     const characterSheets: CharacterSheet[] = items
@@ -44,6 +45,11 @@ const CharacterSheetsList: React.FC<CharacterSheetsListProps> = ({
       .sort((a, b) => a.name.localeCompare(b.name));
 
     setSheets(characterSheets);
+
+    if (!sheetCountTracked.current) {
+      sheetCountTracked.current = true;
+      analytics.track("sheet_count", { count: characterSheets.length });
+    }
   };
 
   useEffect(() => {
