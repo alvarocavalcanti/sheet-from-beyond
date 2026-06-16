@@ -1,5 +1,13 @@
 # Release Notes
 
+## Version 2026-06-16
+
+### Bug Fixes
+
+- Fix changelog displaying every time a new session starts by persisting the dismissal state correctly.
+
+---
+
 ## Version 2026-02-04
 
 ### Major Tech Stack Modernization

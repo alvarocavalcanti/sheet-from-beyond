@@ -6,6 +6,14 @@ export interface ReleaseHighlight {
 
 export const releaseHighlights: ReleaseHighlight[] = [
   {
+    version: "2026-06-16",
+    date: "June 16, 2026",
+    highlights: [
+      "💾 Persisted What's New modal - Dismissing the changelog now correctly saves your preferences across sessions",
+      "🔄 Smarter version checks - Changelog only appears again when a new update is released"
+    ]
+  },
+  {
     version: "2026-02-04",
     date: "February 4, 2026",
     highlights: [

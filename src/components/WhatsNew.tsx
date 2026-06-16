@@ -11,10 +11,14 @@ const WhatsNew: React.FC<WhatsNewProps> = ({ currentVersion, storageKey }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    if (currentVersion === "unknown") return;
+
     const lastSeenVersion = localStorage.getItem(storageKey);
 
     if (lastSeenVersion !== currentVersion) {
       setIsVisible(true);
+    } else {
+      setIsVisible(false);
     }
   }, [currentVersion, storageKey]);
 
