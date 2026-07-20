@@ -15,10 +15,19 @@ import DonationButtons from "./DonationButtons";
 
 const App: React.FC = () => {
   const [sceneReady, setSceneReady] = useState(false);
-  const [isInlineMode, setIsInlineMode] = useLocalStorage(
-    `${ID}/inlineMode`,
-    false
+  const [displayMode, setDisplayMode] = useLocalStorage<"popup" | "panel" | "floating">(
+    `${ID}/displayMode`,
+    "floating" // Default to floating which is the most requested
   );
+  
+  // Migrate old inlineMode setting if it exists
+  useEffect(() => {
+    const oldInlineMode = localStorage.getItem(`${ID}/inlineMode`);
+    if (oldInlineMode !== null) {
+      setDisplayMode(oldInlineMode === "true" ? "panel" : "popup");
+      localStorage.removeItem(`${ID}/inlineMode`);
+    }
+  }, [setDisplayMode]);
   const [activeSheetId, setActiveSheetId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("characters");
   const [colorMode, setColorMode] = useState<ColorMode>('dark');
@@ -76,10 +85,10 @@ const App: React.FC = () => {
     });
   });
 
-  const handleOnChange = (inlineMode: boolean) => {
-    console.log(`Setting inline mode to ${inlineMode}`);
-    analytics.track(inlineMode ? "settings_change_inline_mode" : "settings_change_popup_mode");
-    setIsInlineMode(inlineMode);
+  const handleOnChange = (newMode: "popup" | "panel" | "floating") => {
+    console.log(`Setting display mode to ${newMode}`);
+    analytics.track(`settings_change_${newMode}_mode`);
+    setDisplayMode(newMode);
   };
 
   const handleTabSelect = (key: string | null) => {
@@ -140,74 +149,71 @@ const App: React.FC = () => {
             <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Context Menu Behavior</h2>
             <p className="text-gray-700 dark:text-gray-300 mb-4">
               This setting controls what happens when you right-click a character
-              on the map and select "View Sheet". Within the extension panel,
-              you always have both options: click a name to view inline, or click
-              the external link icon to open in a popup.
+              on the map and select "View Sheet".
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="displayMode"
+                  value="floating"
+                  checked={displayMode === "floating"}
+                  onChange={() => handleOnChange("floating")}
+                  className="mr-2"
+                />
+                <span className="text-gray-900 dark:text-gray-100">Floating Window <span className="text-xs bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-0.5 rounded ml-1">New & Recommended</span></span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="displayMode"
+                  value="panel"
+                  checked={displayMode === "panel"}
+                  onChange={() => handleOnChange("panel")}
+                  className="mr-2"
+                />
+                <span className="text-gray-900 dark:text-gray-100">Extension Panel</span>
+              </label>
               <label className="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   name="displayMode"
                   value="popup"
-                  checked={!isInlineMode}
-                  onChange={() => handleOnChange(false)}
+                  checked={displayMode === "popup"}
+                  onChange={() => handleOnChange("popup")}
                   className="mr-2"
                 />
-                <span className="text-gray-900 dark:text-gray-100">Popup Window</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="displayMode"
-                  value="inline"
-                  checked={isInlineMode}
-                  onChange={() => handleOnChange(true)}
-                  className="mr-2"
-                />
-                <span className="text-gray-900 dark:text-gray-100">Open Extension Panel</span>
+                <span className="text-gray-900 dark:text-gray-100">Browser Popup</span>
               </label>
             </div>
           </div>
 
           <div className="mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-4">
-            <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
-              Popup Window{" "}
-              <span className="text-xs bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded text-gray-700 dark:text-gray-300">
-                Recommended
-              </span>
-            </h2>
+            <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Floating Window & Extension Panel</h2>
             <p className="text-gray-700 dark:text-gray-300">
-              In this mode the character sheet will be displayed in a new browser
-              window. Even though this is less user-friendly, the new window will
-              have access to the current browser session, which means that you
-              won't need to login every time, and also won't have issues with
-              sites blocking the page from being loaded.
-            </p>
-          </div>
-
-          <div className="mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-4">
-            <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Inline Display</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              In this mode the character sheet will be displayed inside the
-              extension panel as an expandable section. Even though the usability
-              is better, it has the following limitations:
+              In these modes the character sheet will be displayed inside Owlbear Rodeo. 
+              The <strong>Floating Window</strong> stays open when you click the map, while the <strong>Extension Panel</strong> auto-closes. Note:
             </p>
             <ul className="mt-3 space-y-2 text-gray-700 dark:text-gray-300 list-disc list-inside">
               <li>
-                It won't have access to the current browser session. Therefore,
-                you will need to accept cookies, login, etc, every time the
-                sheet is displayed
+                They don't share your browser session cookies. You will need to login every time the sheet is displayed unless the sheet is public.
               </li>
               <li>
                 For <strong>D&D Beyond</strong>, the best option is to mark the character
-                sheet as public and it should load without needing to login
+                sheet as public so it loads instantly without logging in.
               </li>
               <li>
                 Some sites will block the page from being loaded, such as <strong>Google
-                Drive</strong> and <strong>Dropbox</strong>
+                Drive</strong> and <strong>Dropbox</strong>.
               </li>
             </ul>
+          </div>
+
+          <div className="mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-4">
+            <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Browser Popup Window</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              The character sheet opens in a new browser window. It has access to your current browser session (no need to login every time) and bypasses iframe blocking.
+            </p>
           </div>
 
           <DonationButtons />

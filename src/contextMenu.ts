@@ -86,31 +86,47 @@ export function setupContextMenu() {
       const metadata: { characterSheetURL: string } = context.items[0].metadata[
         `${ID}/metadata`
       ] as { characterSheetURL: string };
-      const isInlineMode = localStorage.getItem(`${ID}/inlineMode`) === "true";
+      
+      let displayMode = localStorage.getItem(`${ID}/displayMode`)?.replace(/"/g, "");
+      if (!displayMode) {
+        const isInlineMode = localStorage.getItem(`${ID}/inlineMode`) === "true";
+        displayMode = isInlineMode ? "panel" : "popup";
+      }
 
-      if (isInlineMode) {
+      if (displayMode === "panel") {
         analytics.track("view_sheet_inline");
-
         await OBR.action.open();
-
-        await OBR.broadcast.sendMessage(
-          `${ID}/view-sheet`,
-          {
-            characterId: context.items[0].id,
-            sheetURL: metadata.characterSheetURL,
-          },
-          { destination: "LOCAL" }
-        );
+        // Allow time for the panel to open and subscribe to messages
+        setTimeout(async () => {
+          await OBR.broadcast.sendMessage(
+            `${ID}/view-sheet`,
+            { characterId: context.items[0].id, sheetURL: metadata.characterSheetURL },
+            { destination: "LOCAL" }
+          );
+        }, 100);
+      } else if (displayMode === "floating") {
+        analytics.track("view_sheet_floating");
+        await OBR.modal.open({
+          id: `${ID}/modal`,
+          url: "/",
+          width: 500,
+          height: 600,
+          hideBackdrop: true,
+          hidePaper: false,
+        });
+        
+        // Broadcast the open sheet message after modal mounts
+        setTimeout(async () => {
+          await OBR.broadcast.sendMessage(
+            `${ID}/view-sheet`,
+            { characterId: context.items[0].id, sheetURL: metadata.characterSheetURL },
+            { destination: "LOCAL" }
+          );
+        }, 500);
       } else {
         analytics.track("view_sheet_popup");
-        const screenWidth =
-          window.innerWidth ||
-          document.documentElement.clientWidth ||
-          document.body.clientWidth;
-        const screenHeight =
-          window.innerHeight ||
-          document.documentElement.clientHeight ||
-          document.body.clientHeight;
+        const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         const windowWidth = 400;
         const windowHeight = 800;
         const left = Math.max(0, (screenWidth - windowWidth) / 2);
