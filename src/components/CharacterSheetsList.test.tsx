@@ -33,7 +33,7 @@ describe('CharacterSheetsList', () => {
 
   it('renders empty state when no items returned', async () => {
     mockGetItems.mockResolvedValue([]);
-    render(<CharacterSheetsList />);
+    render(<CharacterSheetsList activeSheetId={null} setActiveSheetId={vi.fn()} />);
     await waitFor(() => {
       expect(screen.getByText(/No character sheets added yet/i)).toBeInTheDocument();
     });
@@ -53,7 +53,7 @@ describe('CharacterSheetsList', () => {
       }
     ]);
 
-    render(<CharacterSheetsList />);
+    render(<CharacterSheetsList activeSheetId={null} setActiveSheetId={vi.fn()} />);
     
     await waitFor(() => {
       expect(screen.getByText('Grog')).toBeInTheDocument();
