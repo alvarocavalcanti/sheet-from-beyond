@@ -64,11 +64,10 @@ const WhatsNew: React.FC<WhatsNewProps> = ({ currentVersion, storageKey }) => {
                     </span>
                   )}
                 </div>
-                <ul className="space-y-2 mb-4">
+                <ul className="list-disc pl-5 space-y-2 mb-4 text-gray-700 dark:text-gray-300">
                   {release.highlights.map((highlight, i) => (
-                    <li key={i} className="text-gray-700 dark:text-gray-300 flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>{highlight}</span>
+                    <li key={i}>
+                      {highlight}
                     </li>
                   ))}
                 </ul>
