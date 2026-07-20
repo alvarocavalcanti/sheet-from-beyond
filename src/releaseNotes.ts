@@ -6,6 +6,13 @@ export interface ReleaseHighlight {
 
 export const releaseHighlights: ReleaseHighlight[] = [
   {
+    version: "2026-07-20",
+    date: "July 20, 2026",
+    highlights: [
+      "🪟 New 'Floating Window' display mode using native Modals. The sheet now stays open and freely movable while you click and interact with the map!"
+    ]
+  },
+  {
     version: "2026-06-16",
     date: "June 16, 2026",
     highlights: [
