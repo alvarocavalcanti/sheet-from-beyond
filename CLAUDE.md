@@ -15,9 +15,10 @@ Sheet from Beyond is an Owlbear Rodeo extension that allows GMs and players to a
 - `npm run lint` - Run ESLint on TypeScript/TSX files with strict error reporting
 
 ### Project Structure
-The build creates two separate HTML entry points via Vite's multi-page configuration:
+The build creates three separate HTML entry points via Vite's multi-page configuration:
 - `index.html` → Main settings UI (React app)
 - `background.html` → Background context menu setup
+- `modal.html` → Floating window UI (React app in modal mode, no context menu registration)
 
 ## Architecture
 
@@ -46,8 +47,9 @@ Creates two context menu entries for CHARACTER layer items:
 
 2. **View Sheet** (GM and PLAYER)
    - Only visible when character has sheet URL metadata
-   - Two display modes based on localStorage `${ID}/popoverMode`:
-     - **Popover mode**: Opens in OBR popover with configurable dimensions
+   - Three display modes based on localStorage `${ID}/displayMode`:
+     - **Floating mode**: Opens `modal.html` in an OBR modal (500x600); the requested sheet is passed via localStorage `${ID}/pendingSheet`. The modal renders `App` with `isModal`, which skips `setupContextMenu()` so the action popover keeps owning the context menus (reopening keeps working after dismissal).
+     - **Panel mode**: Opens the extension action popover and shows the sheet inline via a `view-sheet` broadcast
      - **Popup mode**: Opens in new browser window (400x800, centered on screen)
 
 ### Main UI (`App.tsx`)

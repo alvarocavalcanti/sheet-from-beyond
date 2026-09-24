@@ -106,23 +106,27 @@ export function setupContextMenu() {
         }, 100);
       } else if (displayMode === "floating") {
         analytics.track("view_sheet_floating");
+        // Hand the requested sheet to the modal via localStorage so the
+        // freshly mounted modal.html shows it deterministically (no timing race).
+        try {
+          localStorage.setItem(
+            `${ID}/pendingSheet`,
+            JSON.stringify({ characterId: context.items[0].id, sheetURL: metadata.characterSheetURL })
+          );
+        } catch {
+          // Storage unavailable; the modal still opens with the Characters tab.
+        }
+        // modal.html is a dedicated entry point that does NOT register context
+        // menus, so opening the floating window no longer steals menu ownership
+        // from the action popover (which broke reopening after dismissal).
         await OBR.modal.open({
           id: `${ID}/modal`,
-          url: "/",
+          url: "/modal.html",
           width: 500,
           height: 600,
           hideBackdrop: true,
           hidePaper: false,
         });
-        
-        // Broadcast the open sheet message after modal mounts
-        setTimeout(async () => {
-          await OBR.broadcast.sendMessage(
-            `${ID}/view-sheet`,
-            { characterId: context.items[0].id, sheetURL: metadata.characterSheetURL },
-            { destination: "LOCAL" }
-          );
-        }, 500);
       } else {
         analytics.track("view_sheet_popup");
         const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
