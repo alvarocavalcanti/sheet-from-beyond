@@ -1,5 +1,19 @@
 # Release Notes
 
+## Version 2026-09-24
+
+### Bug Fixes
+
+- Fix Floating Window not reopening after its first dismissal. The floating
+  window now loads a dedicated `modal.html` entry point that does not register
+  context menus, so "View Sheet" keeps working no matter how often the window
+  is closed. The requested sheet is handed to the window via localStorage, so
+  it also shows reliably instead of depending on broadcast timing.
+- Fix OBR subscriptions (context menu, broadcast, theme) being re-registered
+  on every render; they are now set up once with proper cleanup.
+
+---
+
 ## Version 2026-06-16
 
 ### Bug Fixes

@@ -13,7 +13,16 @@ import { ColorMode } from "../themes";
 import WhatsNew from "./WhatsNew";
 import DonationButtons from "./DonationButtons";
 
-const App: React.FC = () => {
+interface AppProps {
+  /**
+   * True when rendered inside the floating window (OBR.modal via modal.html).
+   * The modal must not register context menus, otherwise it steals ownership
+   * from the action popover and "View Sheet" stops working once dismissed.
+   */
+  isModal?: boolean;
+}
+
+const App: React.FC<AppProps> = ({ isModal = false }) => {
   const [sceneReady, setSceneReady] = useState(false);
   const [displayMode, setDisplayMode] = useLocalStorage<"popup" | "panel" | "floating">(
     `${ID}/displayMode`,
@@ -59,17 +68,24 @@ const App: React.FC = () => {
 
   useEffect(() => {
     analytics.page();
+    let unsubscribeBroadcast: (() => void) | undefined;
+    let unsubscribeTheme: (() => void) | undefined;
     OBR.onReady(() => {
-      setupContextMenu();
+      // The floating window (modal) must not register context menus:
+      // OBR binds a menu to the iframe that registered it, so the modal
+      // would steal ownership and the menus would die with it on dismissal.
+      if (!isModal) {
+        setupContextMenu();
+      }
 
       OBR.theme.getTheme().then((theme) => {
         setTheme(theme.mode.toLowerCase());
       });
-      OBR.theme.onChange((theme) => {
+      unsubscribeTheme = OBR.theme.onChange((theme) => {
         setTheme(theme.mode.toLowerCase());
       });
 
-      const unsubscribeBroadcast = OBR.broadcast.onMessage(
+      unsubscribeBroadcast = OBR.broadcast.onMessage(
         `${ID}/view-sheet`,
         (event) => {
           const { characterId } = event.data as { characterId: string; sheetURL: string };
@@ -78,15 +94,33 @@ const App: React.FC = () => {
           analytics.track("view_sheet_from_context_menu");
         }
       );
-
-      return () => {
-        unsubscribeBroadcast();
-      };
     });
-  });
+    return () => {
+      unsubscribeBroadcast?.();
+      unsubscribeTheme?.();
+    };
+  }, [isModal]);
+
+  // The floating window is opened via OBR.modal, which mounts a fresh App.
+  // The context menu writes the requested sheet here before opening the
+  // modal, so the sheet shows deterministically (no broadcast race).
+  useEffect(() => {
+    if (!isModal) return;
+    const pendingKey = `${ID}/pendingSheet`;
+    try {
+      const raw = localStorage.getItem(pendingKey);
+      if (raw) {
+        const { characterId } = JSON.parse(raw) as { characterId: string; sheetURL: string };
+        setActiveSheetId(characterId);
+        setActiveTab("characters");
+        localStorage.removeItem(pendingKey);
+      }
+    } catch {
+      // Ignore a malformed pending sheet; the Characters tab still works.
+    }
+  }, [isModal]);
 
   const handleOnChange = (newMode: "popup" | "panel" | "floating") => {
-    console.log(`Setting display mode to ${newMode}`);
     analytics.track(`settings_change_${newMode}_mode`);
     setDisplayMode(newMode);
   };
@@ -100,7 +134,9 @@ const App: React.FC = () => {
 
   return sceneReady ? (
     <div className="p-4 min-h-screen">
-      <WhatsNew currentVersion={version} storageKey="sheet-from-beyond-last-seen-version" />
+      {!isModal && (
+        <WhatsNew currentVersion={version} storageKey="sheet-from-beyond-last-seen-version" />
+      )}
 
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Sheet from Beyond</h1>
 
